@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>계이름 작곡 놀이터</title>
+<style>
+  :root {
+    --ivory: #fbf5e6;
+    --ivory-deep: #f3e8cf;
+    --paper: #fffdf4;
+    --line: #d9c9a6;
+    --ink: #2f2b25;
+    --staff: #4b4238;
+    --accent: #b0521d;
+    --green: #3e7a4c;
+    --red: #b03a2c;
+    --blue: #2f5d8a;
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 18px 12px 44px;
+    background:
+      radial-gradient(circle at 10% 0%, rgba(176, 82, 29, .07), transparent 30%),
+      radial-gradient(circle at 92% 5%, rgba(47, 93, 138, .07), transparent 28%),
+      var(--ivory);
+    color: var(--ink);
+    font-family: "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  }
+
+  .wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(22px, 5vw, 33px);
+    color: var(--accent);
+  }
+
+  .subtitle {
+    margin: 6px 0 0;
+    font-size: clamp(13px, 3.4vw, 16px);
+    color: #6d6252;
+  }
+
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(90, 70, 40, .08);
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 12px;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .card-title::before {
+    content: "♪";
+    font-size: 20px;
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  label {
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  select,
+  input {
+    padding: 9px 10px;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  select:focus,
+  input:focus {
+    outline: 3px solid rgba(176, 82, 29, .22);
+    border-color: var(--accent);
+  }
+
+  .title-input {
+    flex: 1;
+    min-width: 180px;
+  }
+
+  .tempo-input {
+    width: 84px;
+    text-align: center;
+  }
+
+  button {
+    font-family: inherit;
+    border: none;
+    border-radius: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: transform .06s ease;
+  }
+
+  button:active {
+    transform: scale(.97);
+  }
+
+  .primary {
+    padding: 12px 20px;
+    background: var(--green);
+    color: #fff;
+    font-size: 16px;
+  }
+
+  .secondary {
+    padding: 10px 14px;
+    background: var(--ivory-deep);
+    border: 2px solid var(--line);
+    color: var(--ink);
+    font-size: 14px;
+  }
+
+  .danger {
+    padding: 10px 14px;
+    background: var(--red);
+    color: #fff;
+    font-size: 14px;
+  }
+
+  .palette {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 10px;
+  }
+
+  .palette-group {
+    background: #fff;
+    border: 1px dashed var(--line);
+    border-radius: 12px;
+    padding: 10px;
+  }
+
+  .palette-label {
+    margin: 0 0 8px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #6d6252;
+  }
+
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .chip {
+    min-width: 44px;
+    padding: 8px 9px;
+    border: 2px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .chip.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .note-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+    gap: 8px;
+  }
+
+  .note-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 4px;
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  .note-button svg {
+    width: 38px;
+    height: 34px;
+  }
+
+  .note-button.active {
+    background: rgba(176, 82, 29, .14);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .staff-scroll {
+    overflow-x: auto;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .system {
+    margin-bottom: 18px;
+    min-width: 950px;
+  }
+
+  .system svg {
+    display: block;
+    width: 100%;
+    min-width: 950px;
+    background: var(--paper);
+    border: 2px solid var(--line);
+    border-radius: 8px;
+  }
+
+  .lyrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    min-width: 950px;
+  }
+
+  .lyric-cell {
+    border-right: 1px dashed var(--line);
+    padding: 4px 6px;
+  }
+
+  .lyric-cell:last-child {
+    border-right: none;
+  }
+
+  .lyric {
+    width: 100%;
+    border: none;
+    border-bottom: 1.5px dashed #b9a887;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    padding: 4px 2px;
+  }
+
+  .lyric:focus {
+    outline: none;
+    border-bottom-color: var(--accent);
+  }
+
+  .measure-status {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    min-width: 950px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #6d6252;
+    text-align: center;
+    margin-top: 3px;
+  }
+
+  .measure-status-cell.full {
+    color: var(--green);
+  }
+
+  .guide {
+    font-size: 13px;
+    color: #6d6252;
+    margin: 10px 0 0;
+    line-height: 1.55;
+  }
+
+  .status {
+    margin-top: 10px;
+    min-height: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--blue);
+  }
+
+  .status.error {
+    color: var(--red);
+  }
+
+  @media (max-width: 640px) {
+    .primary,
+    .secondary,
+    .danger {
+      width: 100%;
+    }
+
+    .title-input {
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>계이름 작곡 놀이터</h1>
+    <p class="subtitle">박자를 정하고, 계이름으로 멜로디를 만들고, 가사를 붙여 나만의 노래를 만들어요.</p>
+  </header>
+
+  <section class="card">
+    <h2 class="card-title">곡 정보와 재생</h2>
+    <div class="row">
+      <input id="songTitle" class="title-input" type="text" value="나의 첫 노래" placeholder="노래 제목">
+      <label for="timeSignature">박자</label>
+      <select id="timeSignature">
+        <option value="4">4/4박자 · 한 마디 4박</option>
+        <option value="3">3/4박자 · 한 마디 3박</option>
+        <option value="2">2/4박자 · 한 마디 2박</option>
+      </select>
+      <label for="tempo">빠르기</label>
+      <input id="tempo" class="tempo-input" type="number" min="50" max="180" step="1" value="90">
+      <button id="playButton" class="primary" type="button">▶ 재생</button>
+      <button id="stopButton" class="secondary" type="button">■ 정지</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 class="card-title">음표 고르기</h2>
+    <div class="palette">
+      <div class="palette-group">
+        <p class="palette-label">옥타브 선택</p>
+        <div class="chip-row" id="octavePalette"></div>
+
+        <p class="palette-label" style="margin-top:10px">계이름 · 반음 포함</p>
+        <div class="chip-row" id="pitchPalette"></div>
+      </div>
+
+      <div class="palette-group">
+        <p class="palette-label">음표와 쉼표</p>
+        <div class="note-grid" id="durationPalette"></div>
+      </div>
+    </div>
+
+    <p class="guide">
+      ① 마디를 누르고 ② 옥타브와 계이름을 고른 뒤 ③ 음표 또는 쉼표 아이콘을 누르세요.<br>
+      마디에 남은 박자보다 긴 음표는 넣을 수 없으며, 마디가 꽉 차면 다음 마디로 자동 이동합니다.
+    </p>
+
+    <div class="status" id="status"></div>
+  </section>
+
+  <section class="card">
+    <h2 class="card-title">오선지 악보 · 16마디</h2>
+    <div class="staff-scroll">
+      <div id="score"></div>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <button id="undoButton" class="secondary" type="button">↶ 마지막 음표 지우기</button>
+      <button id="clearButton" class="danger" type="button">🧹 모두 지우기</button>
+    </div>
+  </section>
+</div>
+
+<script>
+const scoreBox = document.getElementById("score");
+const octavePalette = document.getElementById("octavePalette");
+const pitchPalette = document.getElementById("pitchPalette");
+const durationPalette = document.getElementById("durationPalette");
+const statusBox = document.getElementById("status");
+const playButton = document.getElementById("playButton");
+const stopButton = document.getElementById("stopButton");
+const timeSignatureSelect = document.getElementById("timeSignature");
+const tempoInput = document.getElementById("tempo");
+const undoButton = document.getElementById("undoButton");
+const clearButton = document.getElementById("clearButton");
+
+const MEASURE_COUNT = 16;
+const MEASURES_PER_SYSTEM = 4;
+const MEASURE_WIDTH = 225;
+const SYSTEM_WIDTH = MEASURE_WIDTH * MEASURES_PER_SYSTEM + 30;
+const STAFF_LEFT = 30;
+const STAFF_RIGHT = SYSTEM_WIDTH - 12;
+const BOTTOM_LINE = 84;
+const LINE_GAP = 11;
+const MIDDLE_LINE = BOTTOM_LINE - LINE_GAP * 2;
+
+const pitchNames = [
+  { id: 0, korean: "도" },
+  { id: 1, korean: "도♯" },
+  { id: 2, korean: "레" },
+  { id: 3, korean: "레♯" },
+  { id: 4, korean: "미" },
+  { id: 5, korean: "파" },
+  { id: 6, korean: "파♯" },
+  { id: 7, korean: "솔" },
+  { id: 8, korean: "솔♯" },
+  { id: 9, korean: "라" },
+  { id: 10, korean: "라♯" },
+  { id: 11, korean: "시" }
+];
+
+const durations = [
+  { id: "whole", name: "온음표", units: 16, width: 46 },
+  { id: "dottedHalf", name: "점2분음표", units: 12, width: 34 },
+  { id: "half", name: "2분음표", units: 8, width: 30 },
+  { id: "dottedQuarter", name: "점4분음표", units: 6, width: 25 },
+  { id: "quarter", name: "4분음표", units: 4, width: 21 },
+  { id: "eighth", name: "8분음표", units: 2, width: 17 },
+  { id: "sixteenth", name: "16분음표", units: 1, width: 15 },
+  { id: "wholeRest", name: "온쉼표", units: 16, width: 30 },
+  { id: "halfRest", name: "2분쉼표", units: 8, width: 26 },
+  { id: "quarterRest", name: "4분쉼표", units: 4, width: 20 },
+  { id: "eighthRest", name: "8분쉼표", units: 2, width: 17 },
+  { id: "sixteenthRest", name: "16분쉼표", units: 1, width: 15 }
+];
+
+let selectedOctave = 4;
+let selectedPitch = 7;
+let selectedDuration = "quarter";
+let selectedMeasure = 0;
+let isPlaying = false;
+let audioContext = null;
+let playbackTimers = [];
+
+const systemStaff = [];
+
+const measures = Array.from({ length: MEASURE_COUNT }, () => ({
+  notes: [],
+  lyric: ""
+}));
+
+function makeOctaveButtons() {
+  for (let octave = 2; octave <= 6; octave++) {
+    const button = document.createElement("button");
+    button.className = "chip";
+    button.type = "button";
+    button.textContent = `${octave}옥타브`;
+    button.dataset.octave = octave;
+
+    button.addEventListener("click", () => {
+      selectedOctave = octave;
+      updatePalette();
+    });
+
+    octavePalette.appendChild(button);
+  }
+}
+
+function makePitchButtons() {
+  pitchNames.forEach((pitch) => {
+    const button = document.createElement("button");
+    button.className = "chip";
+    button.type = "button";
+    button.textContent = pitch.korean;
+    button.dataset.pitch = pitch.id;
+
+    button.addEventListener("click", () => {
+      selectedPitch = Number(pitch.id);
+      updatePalette();
+
+      const midi = noteToMidi(selectedPitch, selectedOctave);
+      ensureAudio();
+      playTone(midiToFrequency(midi), audioContext.currentTime + 0.02, 0.4);
+    });
+
+    pitchPalette.appendChild(button);
+  });
+}
+
+function noteIcon(type) {
+  const common = `<svg viewBox="0 0 40 34" aria-hidden="true">`;
+
+  const head = (x, y, hollow) => `
+    <ellipse cx="${x}" cy="${y}" rx="7" ry="5"
+      transform="rotate(-18 ${x} ${y})"
+      fill="${hollow ? "none" : "currentColor"}"
+      stroke="currentColor" stroke-width="2.4"/>`;
+
+  const stem = (x, y) => `
+    <line x1="${x}" y1="${y}" x2="${x}" y2="${y - 24}"
+      stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>`;
+
+  const flag = (x, y, count = 1) => {
+    let paths = "";
+
+    for (let i = 0; i < count; i++) {
+      paths += `
+        <path d="M${x} ${y + i * 7} q9 3 8 12"
+          fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>`;
+    }
+
+    return paths;
+  };
+
+  const dot = (x, y) => `<circle cx="${x}" cy="${y}" r="2.6" fill="currentColor"/>`;
+
+  const icons = {
+    whole: `${common}${head(20, 18, true)}</svg>`,
+    dottedHalf: `${common}${head(16, 18, true)}${stem(22, 18)}${dot(28, 15)}</svg>`,
+    half: `${common}${head(16, 18, true)}${stem(22, 18)}</svg>`,
+    dottedQuarter: `${common}${head(16, 18)}${stem(22, 18)}${dot(28, 15)}</svg>`,
+    quarter: `${common}${head(16, 18)}${stem(22, 18)}</svg>`,
+    eighth: `${common}${head(14, 20)}${stem(20, 20)}${flag(20, -4)}</svg>`,
+    sixteenth: `${common}${head(14, 20)}${stem(20, 20)}${flag(20, -4, 2)}</svg>`,
+    wholeRest: `${common}<rect x="10" y="10" width="20" height="7" fill="currentColor"/></svg>`,
+    halfRest: `${common}<rect x="10" y="17" width="20" height="7" fill="currentColor"/></svg>`,
+    quarterRest: `${common}<path d="M20 6 q-7 7 0 11 q7 4 0 11"
+      fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>`,
+    eighthRest: `${common}<path d="M18 24 q9 -7 5 -16" fill="none" stroke="currentColor" stroke-width="3"/>
+      <circle cx="24" cy="9" r="3.4" fill="currentColor"/></svg>`,
+    sixteenthRest: `${common}<path d="M18 26 q9 -7 5 -18" fill="none" stroke="currentColor" stroke-width="3"/>
+      <circle cx="24" cy="9" r="3.2" fill="currentColor"/>
+      <circle cx="21" cy="16" r="3.2" fill="currentColor"/></svg>`
+  };
+
+  return icons[type] || icons.quarter;
+}
+
+function makeDurationButtons() {
+  durations.forEach((duration) => {
+    const button = document.createElement("button");
+    button.className = "note-button";
+    button.type = "button";
+    button.innerHTML = `
+      ${noteIcon(duration.id)}
+      <span>${duration.name}<br>${unitsToBeatText(duration.units)}</span>
+    `;
+    button.dataset.duration = duration.id;
+
+    button.addEventListener("click", () => {
+      selectedDuration = duration.id;
+      updatePalette();
+      addNote();
+    });
+
+    durationPalette.appendChild(button);
+  });
+}
+
+function unitsToBeatText(units) {
+  if (units === 16) return "4박";
+  if (units === 12) return "3박";
+  if (units === 8) return "2박";
+  if (units === 6) return "1.5박";
+  if (units === 4) return "1박";
+  if (units === 2) return "0.5박";
+  return "0.25박";
+}
+
+function updatePalette() {
+  document.querySelectorAll("#octavePalette .chip").forEach((button) => {
+    button.classList.toggle("active", Number(button.dataset.octave) === selectedOctave);
+  });
+
+  document.querySelectorAll("#pitchPalette .chip").forEach((button) => {
+    button.classList.toggle("active", Number(button.dataset.pitch) === selectedPitch);
+  });
+
+  document.querySelectorAll("#durationPalette .note-button").forEach((button) => {
+    button.classList.toggle("active", button.dataset.duration === selectedDuration);
+  });
+}
+
+function noteToMidi(pitch, octave) {
+  return (octave + 1) * 12 + pitch;
+}
+
+function midiToFrequency(midi) {
+  return 440 * Math.pow(2, (midi - 69) / 12);
+}
+
+function pitchY(midi) {
+  const diatonicValues = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6];
+  const diatonic = Math.floor(midi / 12) * 7 + diatonicValues[midi % 12];
+  const reference = Math.floor(64 / 12) * 7 + diatonicValues[64 % 12];
+
+  return BOTTOM_LINE - (diatonic - reference) * (LINE_GAP / 2);
+}
+
+function getBeatsPerMeasure() {
+  return Number(timeSignatureSelect.value);
+}
+
+function getMeasureCapacity() {
+  return getBeatsPerMeasure() * 4;
+}
+
+function measureUsedUnits(index) {
+  return measures[index].notes.reduce((sum, note) => sum + note.units, 0);
+}
+
+function getRemainingUnits(index) {
+  return getMeasureCapacity() - measureUsedUnits(index);
+}
+
+function addNote() {
+  const duration = durations.find((item) => item.id === selectedDuration);
+  const remaining = getRemainingUnits(selectedMeasure);
+
+  if (duration.units > remaining) {
+    showMessage(
+      `${selectedMeasure + 1}마디에는 ${duration.name}을 넣을 공간이 없어요. 현재 남은 길이는 ${unitsToBeatText(remaining)}입니다. 더 짧은 음표를 고르거나 다른 마디를 선택하세요.`,
+      true
+    );
+    return;
+  }
+
+  const isRest = selectedDuration.includes("Rest");
+  const midi = isRest ? null : noteToMidi(selectedPitch, selectedOctave);
+
+  measures[selectedMeasure].notes.push({
+    midi,
+    duration: selectedDuration,
+    units: duration.units
+  });
+
+  const afterRemaining = getRemainingUnits(selectedMeasure);
+
+  if (afterRemaining === 0) {
+    showMessage(`${selectedMeasure + 1}마디가 완성되었어요!`);
+  } else {
+    showMessage(
+      `${selectedMeasure + 1}마디에 ${duration.name}을 넣었어요. 남은 길이: ${unitsToBeatText(afterRemaining)}.`
+    );
+  }
+
+  if (afterRemaining === 0 && selectedMeasure < MEASURE_COUNT - 1) {
+    selectedMeasure += 1;
+  }
+
+  renderScore();
+}
+
+function removeLastNote() {
+  const notes = measures[selectedMeasure].notes;
+
+  if (!notes.length) {
+    showMessage(`${selectedMeasure + 1}마디는 이미 비어 있어요.`, true);
+    return;
+  }
+
+  notes.pop();
+  showMessage(`${selectedMeasure + 1}마디의 마지막 음표를 지웠어요.`);
+  renderScore();
+}
+
+function clearAll() {
+  measures.forEach((measure) => {
+    measure.notes = [];
+    measure.lyric = "";
+  });
+
+  selectedMeasure = 0;
+  showMessage("악보와 가사를 모두 지웠어요.");
+  renderScore();
+}
+
+function makeScore() {
+  scoreBox.innerHTML = "";
+
+  for (let system = 0; system < 4; system++) {
+    const systemBox = document.createElement("div");
+    systemBox.className = "system";
+    systemBox.dataset.system = system;
+
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", `0 0 ${SYSTEM_WIDTH} 150`);
+    svg.setAttribute("role", "img");
+
+    let staff = "";
+
+    for (let i = 0; i < 5; i++) {
+      const y = BOTTOM_LINE - LINE_GAP * i;
+
+      staff += `
+        <line x1="${STAFF_LEFT}" y1="${y}" x2="${STAFF_RIGHT}" y2="${y}"
+          stroke="var(--staff)" stroke-width="1.7"/>`;
+    }
+
+    staff += `<text x="4" y="86" font-size="48" fill="var(--staff)" font-family="serif">𝄞</text>`;
+
+    for (let i = 0; i <= MEASURES_PER_SYSTEM; i++) {
+      const x = STAFF_LEFT + i * MEASURE_WIDTH;
+
+      staff += `
+        <line x1="${x}" y1="${BOTTOM_LINE - LINE_GAP * 4}" x2="${x}" y2="${BOTTOM_LINE}"
+          stroke="var(--staff)" stroke-width="${i === MEASURES_PER_SYSTEM ? 3 : 1.7}"/>`;
+    }
+
+    systemStaff[system] = staff;
+    svg.innerHTML = staff;
+    systemBox.appendChild(svg);
+
+    const lyrics = document.createElement("div");
+    lyrics.className = "lyrics";
+
+    const measureStatus = document.createElement("div");
+    measureStatus.className = "measure-status";
+
+    for (let m = 0; m < MEASURES_PER_SYSTEM; m++) {
+      const measureIndex = system * MEASURES_PER_SYSTEM + m;
+
+      const cell = document.createElement("div");
+      cell.className = "lyric-cell";
+
+      const input = document.createElement("input");
+      input.className = "lyric";
+      input.type = "text";
+      input.placeholder = `${measureIndex + 1}마디 가사`;
+      input.maxLength = 22;
+      input.value = measures[measureIndex].lyric;
+
+      input.addEventListener("input", () => {
+        measures[measureIndex].lyric = input.value;
+      });
+
+      cell.appendChild(input);
+      lyrics.appendChild(cell);
+
+      const status = document.createElement("div");
+      status.className = "measure-status-cell";
+      measureStatus.appendChild(status);
+    }
+
+    systemBox.appendChild(lyrics);
+    systemBox.appendChild(measureStatus);
+    scoreBox.appendChild(systemBox);
+  }
+
+  renderScore();
+}
+
+function drawSymbol(note, x) {
+  const duration = durations.find((item) => item.id === note.duration);
+  let svg = "";
+
+  if (note.midi !== null) {
+    const y = pitchY(note.midi);
+    const hollow = ["whole", "half", "dottedHalf"].includes(note.duration);
+    const stemUp = y >= MIDDLE_LINE;
+    const stemX = stemUp ? x + 6 : x - 6;
+    const stemEnd = stemUp ? y - 32 : y + 32;
+    const topStaffLine = BOTTOM_LINE - LINE_GAP * 4;
+
+    if (y < topStaffLine) {
+      for (let ledgerY = topStaffLine - LINE_GAP; ledgerY >= y - 2; ledgerY -= LINE_GAP) {
+        svg += `
+          <line x1="${x - 9}" y1="${ledgerY}" x2="${x + 9}" y2="${ledgerY}"
+            stroke="var(--staff)" stroke-width="1.6"/>`;
+      }
+    } else if (y > BOTTOM_LINE) {
+      for (let ledgerY = BOTTOM_LINE + LINE_GAP; ledgerY <= y + 2; ledgerY += LINE_GAP) {
+        svg += `
+          <line x1="${x - 9}" y1="${ledgerY}" x2="${x + 9}" y2="${ledgerY}"
+            stroke="var(--staff)" stroke-width="1.6"/>`;
+      }
+    }
+
+    svg += `
+      <ellipse cx="${x}" cy="${y}" rx="6.6" ry="4.7"
+        transform="rotate(-18 ${x} ${y})"
+        fill="${hollow ? "var(--paper)" : "var(--ink)"}"
+        stroke="var(--ink)" stroke-width="2.4"/>`;
+
+    if (note.duration !== "whole") {
+      svg += `
+        <line x1="${stemX}" y1="${y}" x2="${stemX}" y2="${stemEnd}"
+          stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/>`;
+    }
+
+    if (note.duration === "eighth" || note.duration === "sixteenth") {
+      const flagCount = note.duration === "sixteenth" ? 2 : 1;
+
+      for (let i = 0; i < flagCount; i++) {
+        const flagY = stemUp ? stemEnd + i * 7 : stemEnd - i * 7;
+
+        svg += `
+          <path d="M${stemX} ${flagY} q${stemUp ? 9 : -9} 3 ${stemUp ? 8 : -8} 11"
+            fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/>`;
+      }
+    }
+
+    if (note.duration === "dottedHalf" || note.duration === "dottedQuarter") {
+      svg += `<circle cx="${x + 11}" cy="${y - 2}" r="2.5" fill="var(--ink)"/>`;
+    }
+
+    svg += `
+      <text x="${x}" y="${y + 20}" text-anchor="middle"
+        font-size="9" font-weight="800" fill="var(--accent)">
+        ${pitchNames[note.midi % 12].korean}</text>`;
+  } else {
+    svg += drawRest(note.duration, x);
+  }
+
+  return svg;
+}
+
+function drawRest(type, x) {
+  if (type === "wholeRest") {
+    return `<rect x="${x - 9}" y="${BOTTOM_LINE - LINE_GAP * 3}" width="18" height="6" fill="var(--ink)"/>`;
+  }
+
+  if (type === "halfRest") {
+    return `<rect x="${x - 9}" y="${MIDDLE_LINE - 6}" width="18" height="6" fill="var(--ink)"/>`;
+  }
+
+  if (type === "quarterRest") {
+    return `
+      <path d="M${x} ${BOTTOM_LINE - 24} q-7 8 0 12 q7 4 0 12"
+        fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>`;
+  }
+
+  if (type === "eighthRest") {
+    return `
+      <path d="M${x - 2} ${BOTTOM_LINE - 2} q9 -8 5 -18"
+        fill="none" stroke="var(--ink)" stroke-width="2.8"/>
+      <circle cx="${x + 4}" cy="${BOTTOM_LINE - 21}" r="3.2" fill="var(--ink)"/>`;
+  }
+
+  return `
+    <path d="M${x - 2} ${BOTTOM_LINE} q9 -8 5 -20"
+      fill="none" stroke="var(--ink)" stroke-width="2.8"/>
+    <circle cx="${x + 4}" cy="${BOTTOM_LINE - 23}" r="3" fill="var(--ink)"/>
+    <circle cx="${x + 1}" cy="${BOTTOM_LINE - 15}" r="3" fill="var(--ink)"/>`;
+}
+
+function renderScore() {
+  document.querySelectorAll(".system").forEach((systemElement, systemIndex) => {
+    const svg = systemElement.querySelector("svg");
+    let highlights = "";
+    let symbols = "";
+
+    for (let m = 0; m < MEASURES_PER_SYSTEM; m++) {
+      const measureIndex = systemIndex * MEASURES_PER_SYSTEM + m;
+      const isSelected = measureIndex === selectedMeasure;
+
+      highlights += `
+        <rect class="measure-highlight" data-measure="${measureIndex}"
+          x="${STAFF_LEFT + m * MEASURE_WIDTH + 2}" y="20"
+          width="${MEASURE_WIDTH - 4}" height="90"
+          fill="rgba(62,122,76,.16)" stroke="var(--green)" stroke-width="3"
+          rx="6" visibility="${isSelected ? "visible" : "hidden"}"/>`;
+
+      let x = STAFF_LEFT + m * MEASURE_WIDTH + 16;
+
+      measures[measureIndex].notes.forEach((note) => {
+        const duration = durations.find((item) => item.id === note.duration);
+
+        symbols += drawSymbol(note, x);
+        x += duration.width + 7;
+      });
+    }
+
+    svg.innerHTML = systemStaff[systemIndex] + highlights + symbols;
+  });
+
+  updateMeasureStatus();
+}
+
+function updateMeasureStatus() {
+  document.querySelectorAll(".measure-status").forEach((statusBox, systemIndex) => {
+    const cells = statusBox.querySelectorAll(".measure-status-cell");
+
+    cells.forEach((cell, position) => {
+      const measureIndex = systemIndex * MEASURES_PER_SYSTEM + position;
+      const remaining = getRemainingUnits(measureIndex);
+
+      cell.classList.toggle("full", remaining === 0);
+      cell.textContent = remaining === 0
+        ? `${measureIndex + 1}마디 완성`
+        : `${measureIndex + 1}마디 · ${unitsToBeatText(remaining)} 남음`;
+    });
+  });
+}
+
+function showMessage(text, isError = false) {
+  statusBox.textContent = text;
+  statusBox.classList.toggle("error", isError);
+}
+
+function ensureAudio() {
+  if (!audioContext) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    audioContext = new AudioContextClass();
+  }
+
+  if (audioContext.state === "suspended") {
+    audioContext.resume();
+  }
+}
+
+function playTone(frequency, startTime, durationSeconds) {
+  const oscillator = audioContext.createOscillator();
+  const overtone = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  const overtoneGain = audioContext.createGain();
+
+  const sustain = Math.max(0.14, durationSeconds * 0.86);
+  const release = 0.1;
+
+  oscillator.type = "triangle";
+  oscillator.frequency.setValueAtTime(frequency, startTime);
+
+  overtone.type = "sine";
+  overtone.frequency.setValueAtTime(frequency * 2, startTime);
+
+  gain.gain.setValueAtTime(0.0001, startTime);
+  gain.gain.linearRampToValueAtTime(0.17, startTime + 0.012);
+  gain.gain.setValueAtTime(0.14, startTime + sustain * 0.65);
+  gain.gain.exponentialRampToValueAtTime(0.001, startTime + sustain + release);
+
+  overtoneGain.gain.setValueAtTime(0.0001, startTime);
+  overtoneGain.gain.linearRampToValueAtTime(0.04, startTime + 0.012);
+  overtoneGain.gain.exponentialRampToValueAtTime(0.001, startTime + sustain * 0.7);
+
+  oscillator.connect(gain);
+  overtone.connect(overtoneGain);
+  gain.connect(audioContext.destination);
+  overtoneGain.connect(audioContext.destination);
+
+  oscillator.start(startTime);
+  overtone.start(startTime);
+  oscillator.stop(startTime + sustain + release + 0.02);
+  overtone.stop(startTime + sustain * 0.75);
+}
+
+function getTempo() {
+  const value = Number(tempoInput.value);
+  return Number.isFinite(value) ? Math.min(180, Math.max(50, value)) : 90;
+}
+
+function stopPlayback() {
+  isPlaying = false;
+  playbackTimers.forEach((timer) => clearTimeout(timer));
+  playbackTimers = [];
+
+  document.querySelectorAll(".measure-highlight").forEach((rect) => {
+    rect.setAttribute("visibility", "hidden");
+  });
+
+  playButton.textContent = "▶ 재생";
+}
+
+function playSong() {
+  ensureAudio();
+
+  if (isPlaying) {
+    stopPlayback();
+    return;
+  }
+
+  const beatLength = 60 / getTempo();
+  const unitLength = beatLength / 4;
+  let time = audioContext.currentTime + 0.15;
+  let hasNote = false;
+
+  measures.forEach((measure, measureIndex) => {
+    const measureStartTime = time;
+    const system = Math.floor(measureIndex / MEASURES_PER_SYSTEM);
+    const position = measureIndex % MEASURES_PER_SYSTEM;
+    const highlight = document.querySelectorAll(".measure-highlight")[measureIndex];
+
+    measure.notes.forEach((note) => {
+      const durationSeconds = note.units * unitLength;
+
+      if (note.midi !== null) {
+        playTone(midiToFrequency(note.midi), time, durationSeconds);
+        hasNote = true;
+      }
+
+      time += durationSeconds;
+    });
+
+    const emptyUnits = getMeasureCapacity() - measureUsedUnits(measureIndex);
+
+    if (emptyUnits > 0) {
+      time += emptyUnits * unitLength;
+    }
+
+    const delay = Math.max(0, (measureStartTime - audioContext.currentTime) * 1000);
+
+    playbackTimers.push(
+      setTimeout(() => {
+        document.querySelectorAll(".measure-highlight").forEach((element) => {
+          element.setAttribute("visibility", "hidden");
+        });
+
+        highlight.setAttribute("visibility", "visible");
+      }, delay)
+    );
+  });
+
+  if (!hasNote) {
+    showMessage("먼저 음표를 넣어 주세요! 마디를 누른 뒤 계이름과 음표를 선택하세요.", true);
+    return;
+  }
+
+  isPlaying = true;
+  playButton.textContent = "⏸ 일시정지";
+
+  playbackTimers.push(
+    setTimeout(() => {
+      stopPlayback();
+      showMessage("재생이 끝났어요! 멋진 노래였습니다.");
+    }, Math.max(0, (time - audioContext.currentTime) * 1000))
+  );
+
+  showMessage("노래를 재생하고 있어요. 현재 마디가 초록색으로 표시됩니다.");
+}
+
+scoreBox.addEventListener("click", (event) => {
+  const svg = event.target.closest("svg");
+
+  if (!svg) return;
+
+  const systemElement = event.target.closest(".system");
+  const systemIndex = Array.from(document.querySelectorAll(".system")).indexOf(systemElement);
+  const rect = svg.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / rect.width) * SYSTEM_WIDTH;
+
+  const measureInSystem = Math.floor((x - STAFF_LEFT) / MEASURE_WIDTH);
+  selectedMeasure = systemIndex * MEASURES_PER_SYSTEM + measureInSystem;
+  selectedMeasure = Math.min(MEASURE_COUNT - 1, Math.max(0, selectedMeasure));
+
+  renderScore();
+
+  showMessage(
+    `${selectedMeasure + 1}마디를 선택했어요. 남은 길이: ${unitsToBeatText(getRemainingUnits(selectedMeasure))}.`
+  );
+});
+
+playButton.addEventListener("click", playSong);
+stopButton.addEventListener("click", stopPlayback);
+undoButton.addEventListener("click", removeLastNote);
+clearButton.addEventListener("click", clearAll);
+
+timeSignatureSelect.addEventListener("change", () => {
+  const capacity = getMeasureCapacity();
+
+  measures.forEach((measure, index) => {
+    while (measureUsedUnits(index) > capacity && measure.notes.length) {
+      measure.notes.pop();
+    }
+  });
+
+  showMessage(
+    `${timeSignatureSelect.value}/4박자로 바뀌었어요. 각 마디에는 ${timeSignatureSelect.value}박, 즉 16분음표 ${capacity}개 분량을 넣을 수 있어요.`
+  );
+
+  renderScore();
+});
+
+tempoInput.addEventListener("input", () => {
+  tempoInput.value = getTempo();
+});
+
+makeOctaveButtons();
+makePitchButtons();
+makeDurationButtons();
+makeScore();
+updatePalette();
+
+showMessage("마디를 누르고 계이름과 음표 아이콘을 골라 보세요!");
+</script>
+</body>
+</html>
